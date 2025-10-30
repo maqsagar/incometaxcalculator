@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Income Tax Calculator - New Regime (FY 2025-26)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      max-width: 550px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    input[type="number"] {
+
+      padding: 10px;
+      margin: 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #0073e6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.1em;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Income Tax Calculator (FY 2025–26)<br>New Regime</h2>
+    <label for="income">Enter your annual income (₹):</label>
+    <input type="number" id="income" placeholder="Eg: 900000" />
+
+    <button onclick="calculateTax()">Calculate Tax</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateTax() {
+      let income = parseFloat(document.getElementById("income").value);
+      const stdDeduction = 75000; // standard deduction
+
+      if (isNaN(income) || income <= 0) {
+        document.getElementById("result").innerText = "Please enter a valid income amount.";
+        return;
+      }
+
+      // Apply standard deduction
+      let taxableIncome = income - stdDeduction;
+      if (taxableIncome < 0) taxableIncome = 0;
+
+      let tax = 0;
+      const slabs = [
+        { limit: 400000, rate: 0 },
+        { limit: 400000, rate: 0.05 },
+        { limit: 400000, rate: 0.10 },
+        { limit: 400000, rate: 0.15 },
+        { limit: 400000, rate: 0.20 },
+        { limit: 400000, rate: 0.25 },
+        { limit: Infinity, rate: 0.30 }
+      ];
+
+      let remaining = taxableIncome;
+      for (let i = 0; i < slabs.length; i++) {
+        const slabAmount = Math.min(slabs[i].limit, remaining);
+        tax += slabAmount * slabs[i].rate;
+        remaining -= slabAmount;
+        if (remaining <= 0) break;
+      }
+
+      // Section 87A rebate if taxable income <= ₹12,00,000
+      if (taxableIncome <= 1200000) {
+        tax = 0;
+      }
+
+      // Add 4% health and education cess
+      let cess = tax * 0.04;
+      let totalTax = Math.round(tax + cess);
+
+      document.getElementById("result").innerHTML =
+        `Gross Income: ₹${income.toLocaleString()}<br>` +
+        `Standard Deduction: ₹${stdDeduction.toLocaleString()}<br>` +
+        `Taxable Income: ₹${taxableIncome.toLocaleString()}<br>` +
+        `Income Tax: ₹${Math.round(tax).toLocaleString()}<br>` +
+        `Cess (4%): ₹${Math.round(cess).toLocaleString()}<br>` +
+        `<strong>Total Tax Payable: ₹${totalTax.toLocaleString()}</strong>`;
+    }
+  </script>
+</body>
+</html>
